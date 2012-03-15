@@ -1,0 +1,12 @@
+Package: imvipdlsvr
+Version: [[version]]
+Section: chinarewards
+Priority: extra
+Distribution: chinarewards
+Architecture: all
+Description: IMVIP Download Server
+Maintainer: China Rewards <info@china-rewards.com>
+Depends: default-jre-headless | java5-runtime-headless, zip, unzip
+Description: IMVIP Download Server
+ This server handles HTTP request to serve signed APK files which contains
+ the APP distribution channel code.
