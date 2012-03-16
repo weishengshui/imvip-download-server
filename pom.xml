@@ -61,10 +61,23 @@ scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-serve
                             <data>
                                 <src>${project.basedir}/web</src>
                                 <type>directory</type>
+				<includes>lib/*</includes>
+                                <mapper>
+                                  <type>perm</type>
+                                  <prefix>/usr/share/imvipdlsvr/web</prefix>
+                                </mapper>
+                            </data>
+                        </dataSet>
+			<!-- CGI scripts -->
+                        <dataSet>
+                            <data>
+                                <src>${project.basedir}/web</src>
+                                <type>directory</type>
 				<includes>*.cgi</includes>
                                 <mapper>
                                   <type>perm</type>
                                   <prefix>/usr/share/imvipdlsvr/web</prefix>
+				  <filemode>755</filemode>
                                 </mapper>
                             </data>
                         </dataSet>

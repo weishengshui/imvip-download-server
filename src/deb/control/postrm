@@ -1,0 +1,40 @@
+#!/bin/sh
+# prerm script for imvipdlsvr
+#
+# see: dh_installdeb(1)
+
+# to make the installation failed immeidately in case of any unexpected error.
+set -e
+
+
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package.
+
+
+##
+## Main routine.
+##
+case "$1" in
+	purge|remove)
+
+	#
+	# remove symlinks
+	#
+	rm -rf /usr/share/imvipdlsvr/config
+	rm -rf /usr/share/imvipdlsvr/output
+
+	;;
+
+	upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+	;;
+
+
+	*)
+		echo "postrm called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
+
+
+# completed successfully.
+exit 0

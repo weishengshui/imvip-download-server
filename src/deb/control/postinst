@@ -1,0 +1,55 @@
+#!/bin/sh
+# postinst script for imvipdlsvr
+#
+# see: dh_installdeb(1)
+
+# to make the installation failed immeidately in case of any unexpected error.
+set -e
+
+
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package.
+
+
+##
+## Main routine.
+##
+case "$1" in
+	configure)
+
+	#
+	# create directories if not exists
+	#
+
+	# configuration directory @ /etc
+	if [ ! -d /etc/imvipdlsvr ]; then
+		install -d -m755 /etc/imvipdlsvr
+	fi
+
+	# variable data
+	if [ ! -d /var/lib/imvipdlsvr ]; then
+		install -d -m755 /var/lib/imvipdlsvr
+	fi
+
+
+	#
+	# fix links under the /usr/share/imvipdlsvr/ directory
+	#
+	ln -sf /etc/imvipdlsvr /usr/share/imvipdlsvr/config
+	ln -sf /var/lib/imvipdlsvr /usr/share/imvipdlsvr/output
+	
+
+	;;
+
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac
+
+
+# completed successfully.
+exit 0
