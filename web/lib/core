@@ -32,3 +32,192 @@ function imvip_get_client() {
 	esac
 
 }
+
+
+#
+# Check whether the given APP distribution code is valid. This function
+# will report error if the length is NOT between 1 to 20 (inclusive).
+#
+# @param $1 the application distribution code to check.
+# @return 0 if the code is valid, 1 if it is invalid.
+#
+function is_app_distrib_code_valid() {
+
+	local s="$1"
+	local n=${#s}
+
+	# return -1 if length no correct.
+	if [ $n -lt 1 -o $n -gt 20 ]; then
+		return 1
+	fi
+
+	# also check using regular expression
+	# FIXME implements checking
+#	if [[ "$i" =~ '[0-9a-z]{1,20}' ]]; then
+#		return 1
+#	fi
+
+	return 0
+}
+
+
+#
+# This function builds the absolute path of the locally stored package.
+#
+# This function requires the following variable to be set:
+# - client
+# - channel
+# - version
+#
+# @return 0 if this function is completed successfully, 1 otherwise.
+#
+function build_pkg_local_path() {
+
+	local s=
+
+	# base path containing client and client version.
+	s="$PKG_DIR/$client/$version"
+
+	# client specific package prefix.
+	case $client in
+		"android")
+			s="$s/android-${version}.apk"
+			;;
+		*)
+			# unrecognized client
+			return 1
+			;;
+	esac
+
+	# echo the path
+	echo "$s"
+	return 0
+}
+
+
+#
+# Checks if a package can be generated or not.
+#
+function is_pkg_generatable() {
+
+}
+
+
+
+#
+# This function builds a package.
+#
+# @return 0 if function is invoked successfully, and a non-zero value 
+# represents an error:
+# 1: the package is being built by another process
+# 2: no source package exists
+# 999: internal error
+#
+function build_pkg() {
+	
+	${client}_build_pkg
+
+}
+
+
+
+#
+# Returns the package status.
+# 
+# @return   0 if the package is ready to be served, 
+#           1 if the package is being built
+#           2 if the package can be generated
+#           3 package not found.
+#         999 if an error has occurred when determining status.
+#
+function get_pkg_status() {
+
+	local pkg_path= pkg_gen_status= can_gen_pkg=
+	
+	# check if a static file is present.
+	pkg_path=$(build_pkg_local_path)
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
+	# check if the file does exist
+	if [ -f $pkg_path ]; then
+		# report file exist.
+		return 0
+	fi
+
+	# there is a chance the file is being generated, so let's check.
+	# if so, we don't wait - just report server busy.
+	get_android_pkg_genstate
+	pkg_gen_status=$?
+	case $pkg_gen_status in	
+		0)	# the package is not being generated.
+			;;
+		1)	# the package is being generated.
+			return 1	# return immediately
+			;;
+		2|*)	# error determining generation status.
+			return 999
+			;;
+	esac
+	
+
+	# otherwise, check if the file can be generated.
+	is_pkg_generatable
+	can_gen_pkg=$?
+	if [ $can_gen_pkg -eq 0 ]; then
+		return 2	# can be generated
+	fi
+	
+	# not found
+	return 3
+}
+
+
+#
+# This function contains the core logic to handle the software 
+# package download.
+#
+# This function requires several global variable to be set. Or say, 
+# this function is just to prevent the main function to be cluttered
+# up.
+#
+# Required global variables.
+# - client
+# - channel
+#
+function handle_file_download() {
+
+	local pkg_status=0
+
+	# check if a static package is already prepared.
+	get_pkg_status
+	pkg_status=$?
+
+	# act according to the status
+	case $pkg_status in
+	0)		# a compiled package does exist.
+		# serve the package.
+		serve_pkg
+		;;
+
+	1)		# the package is being built.
+		# we just report 'server busy'. poor us
+		emit_http_statuscode "500.13"
+		;;
+
+	2)		# package not built, but possible.
+		# kick start the building process
+
+		build_pkg
+
+		;;
+
+	3)		# package not found.
+		# report package not found (HTTP status code 404)
+		emit_http_statuscode 404
+		;;
+	esac
+
+}
+

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+
+#
+# Returns the HTTP status line according to the given status code.
+#
+function get_http_statusline() {
+	local s=
+
+	case "$1" in
+	404)
+		s="Not Found"
+		;;
+	500)
+		s="Internal Error"
+		;;
+	"500.13")
+		s="Web server is too busy"
+		;;
+	esac
+
+	# output the status line.
+	echo -n "$s"
+	return 0
+}
+
+
+function emit_http_statuscode() {
+	local s=
+	if [ $# -eq 1 ]; then
+		s=$(get_http_statusline $1)
+	else
+		s="$2"
+	fi
+	echo "Status: $1 $s"
+	echo ""
+	exit 0
+}
+
+
+function emit_http_404() {
+	emit_http_statuscode 404 "Not Found"
+}
+
+
+function emit_http_500() {
+	emit_http_statuscode 500 "Internal Error"
+}
+

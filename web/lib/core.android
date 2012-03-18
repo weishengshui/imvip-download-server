@@ -1,0 +1,94 @@
+#!/bin/bash
+
+#
+# android library
+#
+
+#
+# Returns the filename for android package.
+#
+function build_android_pkg_filename() {
+	echo "android-${1}.pkg"
+	return 0
+}
+
+
+#
+# Builds the complete path of the source android package.
+#
+function build_android_srcpkg_path() {
+	local s=
+	s="$SRCPKG_DIR/android/$(build_android_pkg_filename $version)"
+	echo "$s"
+	return 0
+}
+
+
+#
+# This function check if the specified version of package can be generated.
+#
+# The following variables is required to be set.
+#
+# - version
+#
+function is_android_srcpkg_exists() {
+
+	local s=
+	
+	# construct the path and print it
+	s=$(build_android_srcpkg_path)
+
+	if [ ! -f $s ]; then
+		return 1
+	fi
+
+	return 0
+}
+
+
+#
+# Returns the package generation status (android package)
+# 
+#
+function get_android_pkg_genstate() {
+
+}
+
+
+#
+# Build an concrete android package.
+#
+# Since it may requires sometime to build a package, this function is 
+# asynchronious which the package generation process is forked to antoher
+# process.
+#
+# When a process is forked, a PID file will be generated at the directory
+# ${RUN_DIR}/genpkg/${client}/${version}/channel/${channel} to remember
+# that process ID. Per-package working directory is located at 
+# ${TMP_DIR}/genpkg/${client}/${version}/channel/ .
+#
+# Once the package generation is completed regardless of result, the PID
+# file and the working directory should be deleted.
+#
+# The following variable must be present
+# - version
+# - channel
+#
+# @return 0 if function is invoked successfully. See the documentation of
+# function build_pkg() for the list of return codes.
+#
+function android_build_pkg() {
+	
+	# make sure the specified package is not being generated,
+	# otherwise this will corrupt the target file.		
+
+
+	# call another script to initiate the generation process.
+
+	# save the PID if successful.
+
+	
+}
+
+
+
