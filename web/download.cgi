@@ -13,45 +13,27 @@
 #
 
 
-#
-# core paths
-#
+##
+## core paths
+##
 
 # get base dir of this script
-BASE_DIR=`dirname $0`
-# LIB_DIR: Library directory.
-LIB_DIR=$BASE_DIR/lib
-# DATA_DIR: Directory which stores any generated files.
-DATA_DIR=$BASE_DIR/data
-# CONF_DIR: Directory which contains configuration files.
-CONF_DIR=$BASE_DIR/conf
-# PKG_DIR: The directory which stores any generated software packages to 
-# be served.
-PKG_DIR=$DATA_DIR/built_pkg
-# SRCPKG_DIR: The directory which contains the source packages to be 
-# further processed, which will produce complete packages and stored 
-# under the PKG_DIR directory.
-SRCPKG_DIR=$DATA_DIR/src_pkg
-
-# WORK_DIR: The working directory containing
-RUN_DIR=$RUN_DIR/run
-
-
-
-#
-# include libraries.
-#
-. ${LIB_DIR}/bashlib
-. ${LIB_DIR}/http
-. ${LIB_DIR}/core
-
-
+. ./base
+. $BASE_DIR/boot
 
 # import configuration
 . $CONF_DIR/imvipdlsvr.conf
 
 
 
+#
+# include libraries.
+#
+. $LIB_DIR/log
+. ${LIB_DIR}/bashlib
+. ${LIB_DIR}/http
+. ${LIB_DIR}/core
+. ${LIB_DIR}/core.android
 
 
 
@@ -65,6 +47,7 @@ client=`imvip_get_client "$client"`	# rectify parameter
 #
 channel=`param ch`
 
+#version="1.0.0"
 
 
 
@@ -86,40 +69,9 @@ fi
 
 
 #
-# handle android download request
+# handle file download request
 #
-function handle_android_req() {
-	echo "hi"
-}
-
-
-
-# check if the static file is present, and try to handle that
 handle_file_download
-
-
-
-case "$client" in
-
-	android)
-		handle_android_req
-		;;
-
-	# unknown client.
-	*)
-		handle_unknown_cli
-		;;
-
-esac
-
-
-
-# serve the already signed .apk if it is already packaged.
-# FIXME implements me
-
-
-# built a signed .apk if it does not exist.
-
 
 
 
@@ -131,18 +83,6 @@ esac
 target_file="${DATA_DIR}/android-1.0.0.apk"
 target_filesize=$(stat -c %s $target_file)
 # some HTTP header stuffs..
-if [ 1 -eq 0 ]; then
-
-echo "Content-type: application/octet-stream"
-echo "Content-length: $target_filesize"
-echo ""
-# ... and the file stream!
-cat $target_file
-
-
-exit 0
-
-fi
 
 
 
@@ -152,10 +92,21 @@ echo ""
 echo "hello world from imvipdlsvr<br/>"
 echo $BASE_DIR
 
+get_pkg_status
+pkg_s=$?
 
 echo "<br/><br/>"
 echo "client=${client}<br/>"
 echo "channel=${channel}<br/>"
+echo "version=${version}<br/>"
 echo "target_file=$target_file<br/>"
 echo "target_filesize=$target_filesize<br/>"
+echo "get_pkg_status=${pkg_s}<br/>"
+echo "build_android_srcpkg_path=$(build_android_srcpkg_path)<br>"
+
+get_android_pkg_genstate
+r=$?
+echo "get_android_pkg_genstate=$?"
+
+
 

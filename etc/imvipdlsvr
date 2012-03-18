@@ -28,8 +28,8 @@ server {
 	root /home/cyril/git/imvip-download-server/web;
 
 	# Make site accessible from http://localhost/
-	server_name 192.168.3.143;
-#	server_name 192.168.1.110;
+#	server_name 192.168.3.143;
+	server_name 192.168.1.109;
 
 	location ~ /.*\.cgi$ {
 

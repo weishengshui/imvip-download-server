@@ -8,7 +8,7 @@
 # Returns the filename for android package.
 #
 function build_android_pkg_filename() {
-	echo "android-${1}.pkg"
+	echo "android-${1}.apk"
 	return 0
 }
 
@@ -31,6 +31,8 @@ function build_android_srcpkg_path() {
 #
 # - version
 #
+# @return 0 if the source package does exist, else otherwise.
+#
 function is_android_srcpkg_exists() {
 
 	local s=
@@ -52,6 +54,24 @@ function is_android_srcpkg_exists() {
 #
 function get_android_pkg_genstate() {
 
+
+	return 0
+}
+
+
+#
+#
+#
+function is_android_pkg_generatable() {
+
+	local p=
+
+	p=$(is_android_srcpkg_exists)
+	if [ $? -ne 0 ]; then
+		return 1
+	fi
+
+	return 0
 }
 
 
@@ -78,16 +98,37 @@ function get_android_pkg_genstate() {
 # function build_pkg() for the list of return codes.
 #
 function android_build_pkg() {
-	
+
+	local src= dst= r= o=
+
+	src=$(build_android_srcpkg_path)
+	dst=$(build_pkg_local_path)
+
+	log "going to create directory $(dirname $dst)"
+	mkdir -p $(dirname $dst)
+	if [ $? -ne 0 ]; then
+		log "failed to create directory $(dirname $dst)"
+		return 1
+	fi
+
 	# make sure the specified package is not being generated,
 	# otherwise this will corrupt the target file.		
 
 
 	# call another script to initiate the generation process.
+	log "going to create android package $dst"
+	o=$($BIN_DIR/pack $src $dst $channel $KEYSTORE $KEYSTORE_PASS $KEY_PASS $KEY_ALIAS)
+	r=$?
+	if [ $r -ne 0 ]; then
+		log "failed to create android package $dst, pack exit code=$r"
+		log "$o"
+		return 1
+	fi
 
 	# save the PID if successful.
 
-	
+
+	return 0
 }
 
 

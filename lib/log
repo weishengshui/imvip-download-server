@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+function log() {
+	if [ "x$LOG_FILE" = "x" ]; then
+		return 1
+	fi
+	[ $# -eq 0 ] && return 0
+	echo "$(date --rfc-3339=ns) $*" >> $LOG_FILE
+	return 0
+}

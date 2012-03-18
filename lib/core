@@ -98,8 +98,11 @@ function build_pkg_local_path() {
 #
 # Checks if a package can be generated or not.
 #
-function is_pkg_generatable() {
+function get_pkg_genstate() {
 
+	
+
+	return 0
 }
 
 
@@ -111,29 +114,41 @@ function is_pkg_generatable() {
 # represents an error:
 # 1: the package is being built by another process
 # 2: no source package exists
-# 999: internal error
+# 255: internal error
 #
 function build_pkg() {
-	
 	${client}_build_pkg
-
+	return $?
 }
 
+
+
+
+function is_pkg_generatable() {
+
+	local r=
+
+	is_android_pkg_generatable
+	r=$?
+
+	return $r
+
+}
 
 
 #
 # Returns the package status.
 # 
-# @return   0 if the package is ready to be served, 
-#           1 if the package is being built
-#           2 if the package can be generated
-#           3 package not found.
-#         999 if an error has occurred when determining status.
+# @return   0  if the package is ready to be served, 
+#           1  if the package is being built
+#           2  if the package can be generated
+#           3  package not found.
+#         255  if an error has occurred when determining status.
 #
 function get_pkg_status() {
 
 	local pkg_path= pkg_gen_status= can_gen_pkg=
-	
+
 	# check if a static file is present.
 	pkg_path=$(build_pkg_local_path)
 	if [ $? -ne 0 ]; then
@@ -148,19 +163,20 @@ function get_pkg_status() {
 
 	# there is a chance the file is being generated, so let's check.
 	# if so, we don't wait - just report server busy.
-	get_android_pkg_genstate
+	get_pkg_genstate
 	pkg_gen_status=$?
 	case $pkg_gen_status in	
 		0)	# the package is not being generated.
+			echo "" > /dev/null
 			;;
 		1)	# the package is being generated.
 			return 1	# return immediately
 			;;
 		2|*)	# error determining generation status.
-			return 999
+			return 255
 			;;
 	esac
-	
+
 
 	# otherwise, check if the file can be generated.
 	is_pkg_generatable
@@ -175,6 +191,37 @@ function get_pkg_status() {
 
 
 #
+# determine the latest version of the package for the client platform.
+#
+# current implementation checks a local file which contains the 
+# information. The file should contain one line of text which 
+# is the version information.
+#
+# @param $1 the client platform e.g. android
+# @return 0 if this function is successfully called, else otherwise.
+#
+function determine_pkg_latest_version() {
+
+	local meta_file= s=
+
+	# construct the path.
+	meta_file=$LOCAL_VERSION_INFO_DIR/$1
+
+	# if no meta file is present, return a empty version info.
+	if [ ! -f $meta_file ]; then
+		return 0
+	fi
+
+	# otherwise, read the first line
+	s=$(head -n 1 $meta_file)
+	echo "$s"
+
+	return 0
+}
+
+
+
+#
 # This function contains the core logic to handle the software 
 # package download.
 #
@@ -186,9 +233,23 @@ function get_pkg_status() {
 # - client
 # - channel
 #
+# @return 0 if function is executed successfully, else otherwise.
+#
 function handle_file_download() {
 
-	local pkg_status=0
+	local pkg_status=0 r=
+
+
+	# determine the latest version for the client if not specified
+	if [ "x$version" = "x" ]; then
+		version=$(determine_pkg_latest_version $client)
+		if [ $? -ne 0 ]; then
+			# failed to determine latest version of possible
+			# package.
+			return 1
+		fi
+	fi
+
 
 	# check if a static package is already prepared.
 	get_pkg_status
@@ -198,7 +259,7 @@ function handle_file_download() {
 	case $pkg_status in
 	0)		# a compiled package does exist.
 		# serve the package.
-		serve_pkg
+		serve_pkg $(build_pkg_local_path)
 		;;
 
 	1)		# the package is being built.
@@ -208,16 +269,61 @@ function handle_file_download() {
 
 	2)		# package not built, but possible.
 		# kick start the building process
-
+		log "going to build package"
 		build_pkg
-
+		r=$?
+		if [ $r -ne 0 ]; then
+			emit_http_statuscode 500
+			exit 1
+		else
+			serve_pkg $(build_pkg_local_path)
+		fi
 		;;
 
 	3)		# package not found.
 		# report package not found (HTTP status code 404)
-		emit_http_statuscode 404
+		#emit_http_statuscode 500
 		;;
 	esac
 
 }
 
+
+#
+# Serve the package to the remote client.
+#
+# This will serve the specified file via HTTP, with proper HTTP header set.
+#
+# @param $1 the file to serve
+# @return 0 if the function is completed successfully, else otherwise.
+#
+function serve_pkg() {
+
+	local filesize= filename=
+
+	# get the file size, in bytes.
+	filesize=$(stat -c %s $1)
+	filename=$(basename $1)
+
+	# output HTTP headers.
+	echo "Content-type: application/octet-stream"
+	echo "Content-Disposition: attachment; filename=\"${filename}\""
+	echo "Content-length: $filesize"
+	echo ""
+
+	# ... and stream the file to remote client!
+	cat $1
+
+	return 0
+}
+
+
+#
+# Log a error message to the stderr.
+#
+function log_err() {
+	echo "$1" >&2
+	return 0
+}
+
+# vim:ts=4 sws=4
