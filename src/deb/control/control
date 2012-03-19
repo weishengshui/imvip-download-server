@@ -6,7 +6,8 @@ Distribution: chinarewards
 Architecture: all
 Description: IMVIP Download Server
 Maintainer: China Rewards <info@china-rewards.com>
-Depends: default-jre-headless | java5-runtime-headless, zip, unzip, nginx, fcgiwrap
+Depends: default-jdk | openjdk-6-jdk | openjdk-7-jdk, unzip, nginx, fcgiwrap
+Recommends: zip
 Description: IMVIP Download Server
  This server handles HTTP request to serve signed APK files which contains
  the APP distribution channel code.

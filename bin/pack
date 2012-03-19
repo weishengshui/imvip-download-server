@@ -32,7 +32,8 @@ BASE_DIR=$(dirname $0)/..
 # binaries definition
 
 UNZIP=unzip
-ZIP=zip
+ZIP=`which zip`
+JAR=`which jar`
 
 
 # ZIP_PARAM defines any extra parameters passed when calling 
@@ -147,7 +148,17 @@ fi
 
 cur_dir=$(pwd)
 cd "$work_dir_src"
-$ZIP -r "$ZIP_PARAM" "$built_unsigned_pkg" *
+if [ "x$ZIP" != "x" ]; then
+	# use zip
+	$ZIP -r "$ZIP_PARAM" "$built_unsigned_pkg" *
+elif [ "x$JAR" != "x" ]; then
+	# use jar as zip
+	$JAR cfM "$built_unsigned_pkg" *
+else
+	log_err "no compression utilities are found"
+	exit 255
+fi
+# and check the result
 if [ $? -ne 0 ]; then
 	log_err "error compressing into .apk"
 	cd $cur_dir
