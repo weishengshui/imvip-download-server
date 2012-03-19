@@ -39,7 +39,7 @@ case "$1" in
 		install -d -m775 -o www-data -g www-data /var/lib/imvipdlsvr/src_pkg
 	fi
 	if [ ! -d /var/lib/imvipdlsvr/data/latest_pkg ]; then
-		install -d -m775 -o www-data -g www-data /var/lib/imvipdlsvr/latest_pkg
+		install -d -m775 -o www-data -g www-data /var/lib/imvipdlsvr/latest_ver
 	fi
 	# log directory
 	if [ ! -d /var/log/imvipdlsvr ]; then
