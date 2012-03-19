@@ -19,12 +19,20 @@
   <inceptionYear>2012</inceptionYear>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <pkgname>imvipdlsvr</pkgname>
   </properties>
   <organization>
     <name>China Rewards</name>
     <url>http://www.china-rewards.com</url>
   </organization>
   <build>
+			<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>1.0-beta-7</version>
+			</extension>
+		</extensions>
     <plugins>
       <plugin>
         <artifactId>jdeb</artifactId>
@@ -37,6 +45,13 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
+              <!-- must use this pattern -->
+              <deb>${project.build.directory}/${pkgname}_${project.version}_all.deb</deb>
+              <!-- points to an empty file -->
+              <changesIn>${basedir}/CHANGES.txt</changesIn>
+              <changesOut>${project.build.directory}/${pkgname}_${project.version}.changes</changesOut>
+              <changesSave>${project.build.directory}/CHANGES.save</changesSave>
+              <attach>false</attach>
               <dataSet>
                 <!-- boot -->
                 <data>
