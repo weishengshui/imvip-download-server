@@ -16,6 +16,10 @@ function build_android_pkg_filename() {
 #
 # Builds the complete path of the source android package.
 #
+# The path will be output to stdout.
+#
+# @return 0 if successful.
+#
 function build_android_srcpkg_path() {
 	local s=
 	s="$SRCPKG_DIR/android/$(build_android_pkg_filename $version)"
@@ -78,6 +82,9 @@ function is_android_pkg_generatable() {
 #
 # Build an concrete android package.
 #
+# A successful call will output the package under the standard package
+# output directory.
+#
 # Since it may requires sometime to build a package, this function is 
 # asynchronious which the package generation process is forked to antoher
 # process.
@@ -93,6 +100,7 @@ function is_android_pkg_generatable() {
 # The following variable must be present
 # - version
 # - channel
+# - everything in imvipdlsvr.conf config.
 #
 # @return 0 if function is invoked successfully. See the documentation of
 # function build_pkg() for the list of return codes.
@@ -113,6 +121,7 @@ function android_build_pkg() {
 
 	# make sure the specified package is not being generated,
 	# otherwise this will corrupt the target file.		
+	# TODO implement guarding of multiple build.
 
 
 	# call another script to initiate the generation process.

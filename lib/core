@@ -1,10 +1,14 @@
 #!/bin/bash
 
+# vim:ts=2 sws=2
+
+#
 # This core library contains logic related to the IMVIP download server
 # which serves software packages for the IMVIP mobile application.
 #
 # @author cyril
 # @since 0.1.0
+#
 
 
 #
@@ -16,7 +20,6 @@
 # @return 0 if function is called without error, else otherwise.
 #
 function imvip_get_client() {
-	
 	case "$1" in
 		"and")
 			echo "android"
@@ -30,7 +33,6 @@ function imvip_get_client() {
 			echo ""
 		;;
 	esac
-
 }
 
 
@@ -46,23 +48,25 @@ function is_app_distrib_code_valid() {
 	local s="$1"
 	local n=${#s}
 
-	# return -1 if length no correct.
-	if [ $n -lt 1 -o $n -gt 20 ]; then
-		return 1
-	fi
+	# return -1 if length no correct
+	test $n -lt 1 -o $n -gt 20 && return 1;
+	# check all is num or alpha
+	res=$(echo $1 | egrep '[^[:alnum:]]')
+	test $res && return 2;
 
-	# also check using regular expression
-	# FIXME implements checking
-#	if [[ "$i" =~ '[0-9a-z]{1,20}' ]]; then
-#		return 1
-#	fi
-
-	return 0
+	# String correct.
+	return 0;
 }
 
 
 #
 # This function builds the absolute path of the locally stored package.
+#
+# The format varies between different client platforms. But general
+# format is in:
+#
+#  <client-specific-package>-<version>_<app-distribution-channel>.<client-specific-suffix>
+#
 #
 # This function requires the following variable to be set:
 # - client
@@ -81,7 +85,7 @@ function build_pkg_local_path() {
 	# client specific package prefix.
 	case $client in
 		"android")
-			s="$s/android-${version}.apk"
+			s="$s/android-${version}_$channel.apk"
 			;;
 		*)
 			# unrecognized client
@@ -100,11 +104,10 @@ function build_pkg_local_path() {
 #
 function get_pkg_genstate() {
 
+	# FIXME implements this logic to check package generation status.
 	
-
 	return 0
 }
-
 
 
 #
@@ -112,8 +115,8 @@ function get_pkg_genstate() {
 #
 # @return 0 if function is invoked successfully, and a non-zero value 
 # represents an error:
-# 1: the package is being built by another process
-# 2: no source package exists
+#   1: the package is being built by another process
+#   2: no source package exists
 # 255: internal error
 #
 function build_pkg() {
@@ -123,7 +126,11 @@ function build_pkg() {
 
 
 
-
+#
+# Checks whether the package can be generated.
+#
+# @return 0 if the package can be generated, else otherwise.
+#
 function is_pkg_generatable() {
 
 	local r=
@@ -176,7 +183,6 @@ function get_pkg_status() {
 			return 255
 			;;
 	esac
-
 
 	# otherwise, check if the file can be generated.
 	is_pkg_generatable
@@ -240,7 +246,7 @@ function handle_file_download() {
 	local pkg_status=0 r=
 
 
-	# determine the latest version for the client if not specified
+	# determine the latest version for the client if not specified.
 	if [ "x$version" = "x" ]; then
 		version=$(determine_pkg_latest_version $client)
 		if [ $? -ne 0 ]; then
@@ -259,25 +265,32 @@ function handle_file_download() {
 	case $pkg_status in
 	0)		# a compiled package does exist.
 		# serve the package.
+		log "existing package found: $(basename build_pkg_local_path)"
 		serve_pkg $(build_pkg_local_path)
+		return 0
 		;;
 
 	1)		# the package is being built.
 		# we just report 'server busy'. poor us
 		emit_http_statuscode "500.13"
+		return 0
 		;;
 
 	2)		# package not built, but possible.
 		# kick start the building process
-		log "going to build package"
+		log "start building package: client=$client, version=$version, distrib. channel=$channel"
+		# TODO guard against multiple packaging on multiple request on the same
+		# file (client+version+channel+...)
 		build_pkg
 		r=$?
 		if [ $r -ne 0 ]; then
 			emit_http_statuscode 500
 			exit 1
 		else
+			# package is built, serve it.
 			serve_pkg $(build_pkg_local_path)
 		fi
+		return 0
 		;;
 
 	3)		# package not found.
@@ -294,6 +307,11 @@ function handle_file_download() {
 #
 # This will serve the specified file via HTTP, with proper HTTP header set.
 #
+# This function expect the following variables are set:
+# - client
+# - version
+# - channel
+#
 # @param $1 the file to serve
 # @return 0 if the function is completed successfully, else otherwise.
 #
@@ -303,7 +321,8 @@ function serve_pkg() {
 
 	# get the file size, in bytes.
 	filesize=$(stat -c %s $1)
-	filename=$(basename $1)
+	filename=$(build_android_pkg_filename $version)
+	filename=$(basename $filename)
 
 	# output HTTP headers.
 	echo "Content-type: application/octet-stream"
@@ -317,13 +336,3 @@ function serve_pkg() {
 	return 0
 }
 
-
-#
-# Log a error message to the stderr.
-#
-function log_err() {
-	echo "$1" >&2
-	return 0
-}
-
-# vim:ts=4 sws=4

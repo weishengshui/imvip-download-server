@@ -1,11 +1,40 @@
 #!/bin/bash
 
+#
+# Logging library.
+#
 
+
+#
+# Log a message to the application log.
+#
 function log() {
+
+	local s= ms= t=
+
 	if [ "x$LOG_FILE" = "x" ]; then
 		return 1
 	fi
 	[ $# -eq 0 ] && return 0
-	echo "$(date --rfc-3339=ns) $*" >> $LOG_FILE
+
+	# get string
+	s=`date +%Y-%m-%d %k:%M:%S`
+	# add milliseconds
+	t=$(date +%N)
+	ms=${t:0:3}
+	# build the final time string
+	s="${s}.${ms}"
+
+	echo "$s - $*" >> $LOG_FILE
 	return 0
 }
+
+
+#
+# Log a error message to the stderr.
+#
+function log_err() {
+	echo "$1" >&2
+	return 0
+}
+
