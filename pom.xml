@@ -29,7 +29,7 @@
       <plugin>
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>
-        <version>0.10</version>
+        <version>0.9.CR</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -108,6 +108,26 @@
           </execution>
         </executions>
       </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+				<version>1.0-beta-3</version>
+				<configuration>
+					<fromDir>${project.build.directory}</fromDir>
+					<includes>*.deb,*.changes</includes>
+					<serverId>repository</serverId>
+					<url>${repo.incoming.url}</url>
+				</configuration>
+				<executions>
+					<execution>
+						<id>upload-deb-to-server</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>upload</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
     </plugins>
   </build>
   <!-- vim: ts:4 sts:4 -->
