@@ -295,10 +295,16 @@ function handle_file_download() {
 
 	3)		# package not found.
 		# report package not found (HTTP status code 404)
-		#emit_http_statuscode 500
+		log "no package is found for client=$client, version=$version, distrib. channel=$channel"
+		emit_http_statuscode 500
+		;;
+
+	# exception case
+	*)
+		log "unknown return code $pkg_status from get_pkg_status()"
+		emit_http_statuscode 500
 		;;
 	esac
-
 }
 
 

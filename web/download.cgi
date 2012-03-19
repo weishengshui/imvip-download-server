@@ -78,18 +78,11 @@ handle_file_download
 #
 # serve the file to client.
 #
-
-# determine the file size
-target_file="${DATA_DIR}/android-1.0.0.apk"
-target_filesize=$(stat -c %s $target_file)
-# some HTTP header stuffs..
-
-
-
+if [ 1 -eq 0 ]; then
 echo "Content-type: text/html"
 echo ""
 
-echo "hello world from imvipdlsvr<br/>"
+echo "IMVIP Download Server<br/><br/>"
 echo $BASE_DIR
 
 get_pkg_status
@@ -108,5 +101,4 @@ get_android_pkg_genstate
 r=$?
 echo "get_android_pkg_genstate=$?"
 
-
-
+fi

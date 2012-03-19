@@ -112,6 +112,8 @@ function android_build_pkg() {
 	src=$(build_android_srcpkg_path)
 	dst=$(build_pkg_local_path)
 
+	log "reading source package $src"
+
 	log "going to create directory $(dirname $dst)"
 	mkdir -p $(dirname $dst)
 	if [ $? -ne 0 ]; then
