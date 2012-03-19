@@ -18,7 +18,7 @@ function log() {
 	[ $# -eq 0 ] && return 0
 
 	# get string
-	s=`date +%Y-%m-%d %k:%M:%S`
+	s=`date +"%Y-%m-%d %k:%M:%S"`
 	# add milliseconds
 	t=$(date +%N)
 	ms=${t:0:3}

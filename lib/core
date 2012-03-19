@@ -265,7 +265,7 @@ function handle_file_download() {
 	case $pkg_status in
 	0)		# a compiled package does exist.
 		# serve the package.
-		log "existing package found: $(basename build_pkg_local_path)"
+		log "pre-built package found: $(basename `build_pkg_local_path`)"
 		serve_pkg $(build_pkg_local_path)
 		return 0
 		;;

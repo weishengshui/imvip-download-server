@@ -72,7 +72,6 @@
                 <data>
                   <src>${project.basedir}/web</src>
                   <type>directory</type>
-                  <includes>*.cgi</includes>
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/share/imvipdlsvr/web</prefix>
