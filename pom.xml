@@ -1,92 +1,115 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.chinarewards.imvip</groupId>
   <artifactId>imvipdlsvr</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
   <name>IMVIP Download Server</name>
   <url>http://wiki.dev.jifen.cc/IMVIP官网下载服务器</url>
-
-	<parent>
-		<artifactId>root</artifactId>
-		<groupId>com.chinarewards</groupId>
-		<version>2.1.0</version>
-	</parent>
-
-	<scm>
-		<url>git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</url>
-		<connection>scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</connection>
-		<developerConnection>
-scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</developerConnection>
-	</scm>
-
-	<inceptionYear>2012</inceptionYear>
-		
+  <parent>
+    <artifactId>root</artifactId>
+    <groupId>com.chinarewards</groupId>
+    <version>2.1.0</version>
+  </parent>
+  <scm>
+    <url>git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</url>
+    <connection>scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</connection>
+    <developerConnection>scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</developerConnection>
+  </scm>
+  <inceptionYear>2012</inceptionYear>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
-	<organization>
-		<name>China Rewards</name>
-		<url>http://www.china-rewards.com</url>
-	</organization>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-<build>
+  <organization>
+    <name>China Rewards</name>
+    <url>http://www.china-rewards.com</url>
+  </organization>
+  <build>
     <plugins>
-        <plugin>
-            <artifactId>jdeb</artifactId>
-            <groupId>org.vafer</groupId>
-            <version>0.10</version>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>jdeb</goal>
-                    </goals>
-                    <configuration>
-			<!-- Direectory example -->
-                        <dataSet>
-                            <data>
-                                <src>${project.basedir}/web</src>
-                                <type>directory</type>
-				<includes>lib/*</includes>
-                                <mapper>
-                                  <type>perm</type>
-                                  <prefix>/usr/share/imvipdlsvr/web</prefix>
-                                </mapper>
-                            </data>
-                        </dataSet>
-			<!-- CGI scripts -->
-                        <dataSet>
-                            <data>
-                                <src>${project.basedir}/web</src>
-                                <type>directory</type>
-				<includes>*.cgi</includes>
-                                <mapper>
-                                  <type>perm</type>
-                                  <prefix>/usr/share/imvipdlsvr/web</prefix>
-				  <filemode>755</filemode>
-                                </mapper>
-                            </data>
-                        </dataSet>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
+      <plugin>
+        <artifactId>jdeb</artifactId>
+        <groupId>org.vafer</groupId>
+        <version>0.10</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <dataSet>
+                <!-- boot -->
+                <data>
+                  <src>${project.basedir}/boot</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/imvipdlsvr</prefix>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <!-- binaries -->
+                <data>
+                  <src>${project.basedir}/bin</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/imvipdlsvr/bin</prefix>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <!-- library -->
+                <data>
+                  <src>${project.basedir}/lib</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/imvipdlsvr/lib</prefix>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <!-- CGI scripts -->
+                <data>
+                  <src>${project.basedir}/web</src>
+                  <type>directory</type>
+                  <includes>*.cgi</includes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/imvipdlsvr/web</prefix>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+		<!-- IMVIP Configuration file -->
+                <data>
+                  <src>${project.basedir}/conf</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/etc/imvipdlsvr</prefix>
+                    <filemode>640</filemode>
+                    <dirmode>750</dirmode>
+                    <user>root</user>
+                    <group>www-data</group>
+                  </mapper>
+                </data>
+		<!-- Nginx config -->
+                <data>
+                  <src>${project.basedir}/etc</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/etc/imvipdlsvr</prefix>
+                    <filemode>644</filemode>
+                    <user>root</user>
+                    <group>www-data</group>
+                  </mapper>
+		</data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
-</build>
-
-<!-- vim: ts:4 sts:4 -->
+  </build>
+  <!-- vim: ts:4 sts:4 -->
 </project>

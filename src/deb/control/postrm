@@ -20,8 +20,10 @@ case "$1" in
 	#
 	# remove symlinks
 	#
-	rm -rf /usr/share/imvipdlsvr/config
+	rm -rf /usr/share/imvipdlsvr/conf
 	rm -rf /usr/share/imvipdlsvr/output
+	rm -rf /usr/share/imvipdlsvr/data
+	rm -rf /usr/share/imvipdlsvr/log
 
 	;;
 

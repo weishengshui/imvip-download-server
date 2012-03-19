@@ -30,13 +30,29 @@ case "$1" in
 	if [ ! -d /var/lib/imvipdlsvr ]; then
 		install -d -m755 /var/lib/imvipdlsvr
 	fi
+	ln -sf /var/lib/imvipdlsvr /usr/share/imvipdlsvr/data
+	#
+	if [ ! -d /var/lib/imvipdlsvr/data/built_pkg ]; then
+		install -d -m755 -o www-data -g www-data /var/lib/imvipdlsvr/built_pkg
+	fi
+	if [ ! -d /var/lib/imvipdlsvr/data/src_pkg ]; then
+		install -d -m755 -o www-data -g www-data /var/lib/imvipdlsvr/src_pkg
+	fi
+	if [ ! -d /var/lib/imvipdlsvr/data/latest_pkg ]; then
+		install -d -m755 -o www-data -g www-data /var/lib/imvipdlsvr/latest_pkg
+	fi
+	# log directory
+	if [ ! -d /var/log/imvipdlsvr ]; then
+		install -d -m755 -o www-data -g www-data /var/log/imvipdlsvr
+	fi
+	ln -sf /var/log/imvipdlsvr /usr/share/imvipdlsvr/log
+	# conf
 
 
 	#
 	# fix links under the /usr/share/imvipdlsvr/ directory
 	#
-	ln -sf /etc/imvipdlsvr /usr/share/imvipdlsvr/config
-	ln -sf /var/lib/imvipdlsvr /usr/share/imvipdlsvr/output
+	ln -sf /etc/imvipdlsvr /usr/share/imvipdlsvr/conf
 	
 
 	;;

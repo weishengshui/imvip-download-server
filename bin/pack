@@ -1,0 +1,217 @@
+#!/bin/bash
+
+#
+# This program package the original APK into a release-able format
+# .apk 
+#
+#
+# Parameters
+#
+#
+# Exit Code
+#
+# 0     Execution completed successfully.
+# 1     Source file not found.
+# 2     Key store is specified but not found.
+# 3     signing failed
+# 4     incorrect arguments given
+# 255   Internal error occurred.
+#
+
+
+BASE_DIR=$(dirname $0)/..
+
+
+. $BASE_DIR/boot
+
+
+# read configuration
+. $CONF_DIR/imvipdlsvr.conf
+
+
+# binaries definition
+
+UNZIP=unzip
+ZIP=zip
+
+
+# ZIP_PARAM defines any extra parameters passed when calling 
+ZIP_PARAM="-1"
+
+
+
+#
+# Read configuration
+#
+. $CONF_DIR/imvipdlsvr.conf
+
+
+#
+# Import libraries
+#
+. $LIB_DIR/core || exit 255 
+
+
+
+# Input parameters
+# FIXME use getopt (not getopts) to handle input argument.
+
+# input_pkg: the path pointing to the source pkg which is not signed and 
+# not ready for release.
+input_pkg=$1
+output_pkg=$2
+app_distrib_channel_code=$3
+keystore=$4
+keystore_pass=$5
+keypass=$6
+key_alias=$7
+
+
+
+##
+## Main Routine
+##
+
+
+# input argument check
+if [ $# -ne 7 ]; then
+	echo "incorrect program arguments." >&2
+	exit 4
+fi
+
+
+# make sure the source pkg file does exist
+if [ ! -f $input_pkg ]; then
+	exit 1
+fi
+
+
+# if keystore is specified, make sure it does exist
+if [ "x$keystore" != "x" -a ! -f "$keystore" ]; then
+	exit 2
+fi
+
+
+
+
+
+##
+## do the packing!
+##
+
+# create working directory first.
+# the working directory is located at TMP_DIR, the actual directory is 
+# stored in the variable 'work_dir'.
+work_dir=$(mktemp -d $TMP_DIR/imvip.XXXXXXXXXX)
+if [ $? -ne 0 ]; then
+	exit 255
+fi
+
+# work_dir_src: contains the extracted content of the .zip
+work_dir_src=$work_dir/src
+# the target directory which contains built files 
+work_dir_target=$work_dir/target
+# 
+built_signed_pkg=$work_dir_target/$(basename "$input_pkg")
+built_unsigned_pkg="${built_signed_pkg}-unalign"
+
+
+# prepare directory
+mkdir -p $work_dir_src $work_dir_target
+
+
+# extract the source apk under this directory.
+#
+# The working directory now contains the exact data as in the 
+# .apk file, which is a zip archive.
+$UNZIP "$input_pkg" -d "$work_dir_src"
+if [ $? -ne 0 ]; then
+	log_err "error extracting source pkg file"
+	exit 255
+fi
+
+
+# generate APP distribution channel identifier.
+#
+# now generate an empty file which is the APP distribution channel
+# code. e.g. 0001. This code is passed into this program as argument.
+touch $work_dir_src/assets/${app_distrib_channel_code}.version
+if [ $? -ne 0 ]; then
+	log_err "error adding application distribution channel code file"
+	exit 255
+fi
+
+
+
+# repack .apk: by zipping up the content inside the working directory
+
+cur_dir=$(pwd)
+cd "$work_dir_src"
+$ZIP -r "$ZIP_PARAM" "$built_unsigned_pkg" *
+if [ $? -ne 0 ]; then
+	log_err "error compressing into .apk"
+	cd $cur_dir
+	exit 255
+fi
+cd $cur_dir
+
+
+
+# sign the application. See
+# http://developer.android.com/guide/publishing/app-signing.html
+
+# construct the parameters for calling jarsigner.
+jarsigner_param=""
+if [ ! -z "$keystore" ]; then
+	jarsigner_param="$jarsigner_param -keystore $keystore"
+fi
+if [ ! -z "$keystore_pass" ]; then
+	jarsigner_param="$jarsigner_param -storepass $keystore_pass"
+fi
+if [ ! -z "$keypass" ]; then
+	jarsigner_param="$jarsigner_param -keypass $keypass"
+fi
+# sign it!
+$JARSIGNER -verbose $jarsigner_param "$built_unsigned_pkg" "$key_alias"
+if [ $? -ne 0 ]; then
+	log_err "error signing .apk"
+	rm -rf "$work_dir"
+	exit 3
+fi
+
+# then verify it!
+$JARSIGNER -verify "$built_unsigned_pkg"
+if [ $? -ne 0 ]; then
+	log_err "error verifying .apk is properly signed."
+	rm -rf "$work_dir"
+	exit 3
+fi
+	
+# align it as well
+# See http://developer.android.com/guide/publishing/app-signing.html#align
+# for more information.
+# use -v 4 as specified by the developer guide above.
+$ANDROID_SDK_ZIPALIGN -f -v 4 $built_unsigned_pkg $built_signed_pkg
+if [ $? -ne 0 ]; then
+	log_err "fail to zipalign .apk"
+	rm -rf "$work_dir"
+	exit 3
+fi
+
+
+# copy the binary to the specified directory
+mv -f $built_signed_pkg $output_pkg
+if [ $? -ne 0 ]; then
+	log_err "error moving signed file to $output_pkg"
+	rm -rf "$work_dir"
+	exit 255
+fi
+
+
+# display summary
+echo "package successfully generated at $output_pkg"
+echo "original  file: $input_pkg ($(stat -c %s $input_pkg) bytes)"
+echo "generated file: $output_pkg ($(stat -c %s $output_pkg) bytes)"
+
+rm -rf "$work_dir"
+exit 0
