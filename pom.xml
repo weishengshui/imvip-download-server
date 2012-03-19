@@ -12,9 +12,9 @@
     <version>2.1.0</version>
   </parent>
   <scm>
-    <url>git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</url>
-    <connection>scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</connection>
-    <developerConnection>scm:git:git@git.dev.china-rewards.com:imvip-download-server/imvip-download-server.git</developerConnection>
+    <url>http://git.dev.china-rewards.com/imvip-download-server</url>
+    <connection>scm:git:git//git.dev.china-rewards.com/imvip-download-server/imvip-download-server.git</connection>
+    <developerConnection>scm:git:ssh://git@git.dev.china-rewards.com/imvip-download-server/imvip-download-server.git</developerConnection>
   </scm>
   <inceptionYear>2012</inceptionYear>
   <properties>
