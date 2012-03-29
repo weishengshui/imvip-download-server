@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#
+# This program package the original APK into a release-able format
+# .apk 
+#
+#
+# Parameters
+#
+#
+# Exit Code
+#
+# 0     Execution completed successfully.
+#
+#set +x
+
+BASE_DIR=$(dirname $0)/..
+
+
+. $BASE_DIR/boot
+
+
+# read configuration
+. $CONF_DIR/imvipdlsvr.conf
+
+#
+#import libraries
+#
+#. $LIB_DIR/core || exit 255 
+#. $LIB_DIR/core.android || exit 255 
+#. $LIB_DIR/log || exit 255 
+
+#
+#exce update 1.0.0 android
+#
+if [ $1 == "update" ];then
+	##
+	##cut android download address
+	##
+	var=`sed -n '/ANDROID_SRC_URL/P' $CONF_DIR/imvipdlsvr.conf | sed "s/||v||/$2/g"`
+	androidurl=`echo ${var#*ANDROID_SRC_URL=}`
+	#echo $var
+	#echo $androidurl
+	
+	##	
+	##test android-1.0.0.apk exit?
+	find $DATA_DIR/src_pkg/$3-$2.apk
+	if [ $? == 0 ];then
+	exit 255
+	fi	
+	##not exit download android-1.0.0.apk
+	wget $androidurl 
+	##download success move to DATA_DIR/src_pkg
+	if [ $? == 0 ];then
+	mv $BIN_DIR/android-$2.apk $DATA_DIR/src_pkg/
+	fi
+	##write verison to android
+	echo $2 >> $DATA_DIR/latest_ver/android
+
+fi
