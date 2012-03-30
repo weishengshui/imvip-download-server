@@ -37,14 +37,14 @@ BASE_DIR=$(dirname $0)/..
 #input order format
 ###
 if [ $# == 0 ];then 
-	echo "You must input order's is : ./repo update 1.0.0 android"
+	echo "You must input order's is : ./repo update $2 android"
 	exit 255
 fi
 if [ $# == 1 ] || [ $# == 2 ] && [ $1 == "update" ];then
-	echo "You must input order's is : ./repo update 1.0.0 android"
+	echo "You must input order's is : ./repo update $2 android"
 	exit 255
 fi
-if [ $# == 3 ] && [ $1 == "update" ];then
+if [ $# == 3 ] && [ $1 == "deploy" ];then
 	##
 	##cut android download address
 	##
