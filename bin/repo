@@ -36,6 +36,9 @@ BASE_DIR=$(dirname $0)/..
 ###
 #input order format
 ###
+if [ whoami != root ];then
+	exit 1;
+fi 
 if [ $# == 0 ];then 
 	echo "You must input order's is : ./repo update $2 android"
 	exit 255
