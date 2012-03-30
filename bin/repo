@@ -33,7 +33,18 @@ BASE_DIR=$(dirname $0)/..
 #
 #exce update 1.0.0 android
 #
-if [ $1 == "update" ];then
+###
+#input order format
+###
+if [ $# == 0 ];then 
+	echo "You must input order's is : ./repo update 1.0.0 android"
+	exit 255
+fi
+if [ $# == 1 ] || [ $# == 2 ] && [ $1 == "update" ];then
+	echo "You must input order's is : ./repo update 1.0.0 android"
+	exit 255
+fi
+if [ $# == 3 ] && [ $1 == "update" ];then
 	##
 	##cut android download address
 	##
@@ -61,3 +72,5 @@ if [ $1 == "update" ];then
 	chown www-data:www-data $DATA_DIR/latest_ver/$3
 	fi
 fi
+
+
