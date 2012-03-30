@@ -24,6 +24,8 @@ case "$1" in
 	rm -rf /usr/share/imvipdlsvr/output
 	rm -rf /usr/share/imvipdlsvr/data
 	rm -rf /usr/share/imvipdlsvr/log
+	rm -rf /etc/nginx/sites-enabled/imvipdlsvr
+	rm -rf /etc/nginx/sites-available/imvipdlsvr
 
 	;;
 

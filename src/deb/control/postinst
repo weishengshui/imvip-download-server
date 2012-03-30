@@ -30,7 +30,9 @@ case "$1" in
 	if [ ! -d /var/lib/imvipdlsvr ]; then
 		install -d -m775 /var/lib/imvipdlsvr
 	fi
-	ln -sf /var/lib/imvipdlsvr /usr/share/imvipdlsvr/data
+	if [ ! -e /usr/share/imvipdlsvr/data ]; then
+		ln -sf /var/lib/imvipdlsvr /usr/share/imvipdlsvr/data
+	fi
 	#
 	if [ ! -d /var/lib/imvipdlsvr/data/built_pkg ]; then
 		install -d -m775 -o www-data -g www-data /var/lib/imvipdlsvr/built_pkg
@@ -45,14 +47,26 @@ case "$1" in
 	if [ ! -d /var/log/imvipdlsvr ]; then
 		install -d -m775 -o www-data -g www-data /var/log/imvipdlsvr
 	fi
-	ln -sf /var/log/imvipdlsvr /usr/share/imvipdlsvr/log
+	if [ ! -e /usr/share/imvipdlsvr/log ]; then
+		ln -sf /var/log/imvipdlsvr /usr/share/imvipdlsvr/log
+	fi
 	# conf
 
 
 	#
 	# fix links under the /usr/share/imvipdlsvr/ directory
 	#
-	ln -sf /etc/imvipdlsvr /usr/share/imvipdlsvr/conf
+	if [ ! -e /usr/share/imvipdlsvr/conf ]; then
+		ln -sf /etc/imvipdlsvr /usr/share/imvipdlsvr/conf
+	fi
+
+	#
+	# links the Nginx configuration to the site-available directory
+	# if not exists
+	#
+	if [ ! -e /etc/nginx/sites-available/imvipdlsvr ]; then
+		ln -sf /etc/imvipdlsvr/nginx-site.conf /etc/nginx/sites-available/imvipdlsvr
+	fi
 	
 
 	;;
