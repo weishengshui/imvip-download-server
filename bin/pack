@@ -153,6 +153,7 @@ if [ "x$ZIP" != "x" ]; then
 	$ZIP -r "$ZIP_PARAM" "$built_unsigned_pkg" *
 elif [ "x$JAR" != "x" ]; then
 	# use jar as zip
+	echo "using jar to compress..."
 	$JAR cfM "$built_unsigned_pkg" *
 else
 	log_err "no compression utilities are found"
