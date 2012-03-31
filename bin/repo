@@ -75,15 +75,15 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	find $DATA_DIR/src_pkg/$3-$2.apk
 	if [ $? == 0 ];then
 	echo "Warning:$3-$2.apk is exist!"
-	exit 255
+	exit 1
 	fi	
 	##not exit download android-1.0.0.apk
 	wget $androidurl 
 	##download success move to DATA_DIR/src_pkg
 	if [ $? != 0 ];then
-	echo "Warning:there is not this version program!"
+	echo "Warning:there is not the correct version program!"
 	echo  "Warning:DOWNLOAD IS FAILURE!"
-	exit 255
+	exit 1
 	fi
 	mv $BIN_DIR/$3-$2.apk $DATA_DIR/src_pkg/
 	
@@ -94,11 +94,11 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	echo $2 > $DATA_DIR/latest_ver/$3
 	chown www-data:www-datea $DATA_DIT/latest_ver/$3
 	echo "DOWNLOAD IS SUCCESSFUL!"
-	exit 255
+	exit 0
 	fi
 	chown www-data:www-data $DATA_DIR/latest_ver/$3
 	echo "DOWNLOAN IS SUCCESSFUL!"
-	exit 255
+	exit 0
 fi
 
 
