@@ -41,7 +41,7 @@ if [ $(whoami) != "root" ];then
 fi 
 if [ $# == 0 ];then 
 	echo "usage:  repo <command> [--version] [--program] " 
-	echo " The most commonly used repo commands are" 
+	echo "The most commonly used repo commands are" 
 	echo "   deploy: download program version in a special dir" 
 	echo "   for example: ./repo deploy 1.0.0 android " 
 	exit 255
@@ -56,6 +56,11 @@ if [ $# == 1 ] || [ $# == 2 ] && [ $1 != "deploy" ];then
 	echo "Try './repo'"
 	exit 255
 fi
+if  [ $# == 3 ] && [ $1 != "deploy" ];then
+	echo "error: this command is not deploy or input command incorrect"
+	echo "Try './repo'"
+	exit 255
+fi 
 if [ $# == 3 ] && [ $1 == "deploy" ];then
 	##
 	##cut android download address
