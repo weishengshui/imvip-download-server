@@ -1,48 +1,25 @@
 #!/bin/bash
-#
 # This program package the original APK into a release-able format
 # .apk 
-#
-#
 # Parameters
-#
-#
 # Exit Code
-#
 # 0     Execution completed successfully.
 # 1	Warning!
 #255	Error!
 #
-#
-#
-#
-#
-#
-
 #set +x
-
 BASE_DIR=$(dirname $0)/..
-
-
 . $BASE_DIR/boot
-
-
 # read configuration
 . $CONF_DIR/imvipdlsvr.conf
-
 #
 #import libraries
-#
 #. $LIB_DIR/core || exit 255 
 #. $LIB_DIR/core.android || exit 255 
 #. $LIB_DIR/log || exit 255 
 
-#
 #exce update 1.0.0 android
-#
-###
 #input order format
-###
 if [ $(whoami) != "root" ];then
 	echo "Warning:you is not root user"
 	exit 1;
@@ -84,8 +61,9 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	exit 1
 	fi	
 	##not exit download android-1.0.0.apk
-	wget $androidurl
-	##download success move to DATA_DIR/src_pkg
+        tmp_dir=$(mktemp -d  $BASE_DIR/tmp.XXXXXX)
+	wget -P $tmp_dir $androidurl 
+	#download success move to DATA_DIR/src_pkg
 	if [ $? != 0 ];then
 	echo "Warning:there is not the correct version program!"
 	echo  "Warning:DOWNLOAD IS FAILURE!"
@@ -99,8 +77,14 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	echo "Warning:*/data/src_pkg have $3-$2.apk!"
 	exit 1
 	fi
-	mv $BIN_DIR/$3-$2.apk $DATA_DIR/src_pkg/$3/
-	##write verison to android
+	mv $tmp_dir/$3-$2.apk $DATA_DIR/src_pkg/$3/
+	if [ $? != 0 ];then
+	echo "Warning:Moving havn't successful!"
+	sudo rm -r $tmp_dir
+	exit 1
+	fi
+	sudo rm -r $tmp_dir
+	write verison to android
 	find $DATA_DIR/latest_ver/$3
 	if [ $? != 0 ];then 
 	touch $DATA_DIR/latest_ver/$3
