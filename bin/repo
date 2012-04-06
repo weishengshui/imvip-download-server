@@ -7,16 +7,27 @@
 # 1	Warning!
 #255	Error!
 #
-#set +x
+###set +x
+##
+##
+##
+##
+######
+version=$2
+export version
+##
+##
+##
+#####
 BASE_DIR=$(dirname $0)/..
 . $BASE_DIR/boot
 # read configuration
 . $CONF_DIR/imvipdlsvr.conf
 #
 #import libraries
-#. $LIB_DIR/core || exit 255 
-#. $LIB_DIR/core.android || exit 255 
-#. $LIB_DIR/log || exit 255 
+. $LIB_DIR/core || exit 255 
+. $LIB_DIR/core.android || exit 255 
+. $LIB_DIR/log || exit 255 
 
 #exce update 1.0.0 android
 #input order format
@@ -47,16 +58,17 @@ if  [ $# == 3 ] && [ $1 != "deploy" ];then
 	exit 255
 fi 
 if [ $# == 3 ] && [ $1 == "deploy" ];then
-	##
+	##data_src_dir is the source package dir
+	##data_src_dir is the latest_ver dir
+	data_src_dir=$DATA_DIR/src_pkg/$3
+	data_lastversion_dir=$DATA_DIR/latest_ver/$3
 	##cut android download address
 	##
 	var=`sed -n '/ANDROID_SRC_URL2/P' $CONF_DIR/imvipdlsvr.conf | sed "s/||v||/$2/g"`
 	androidurl=`echo ${var#*ANDROID_SRC_URL2=}`
-	
 	##	
 	##test android-1.0.*.apk exit?
-	find $DATA_DIR/src_pkg/$3/$3-$2.apk
-	if [ $? == 0 ];then
+	if [ -e $(bulid_android_srcpkg_path) ];then
 	echo "Warning:$3-$2.apk is exist!"
 	exit 1
 	fi	
@@ -69,33 +81,28 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	echo  "Warning:DOWNLOAD IS FAILURE!"
 	exit 1
 	fi
-	if [ ! -d $DATA_DIR/src_pkg/$3 ];then
-	mkdir $DATA_DIR/src_pkg/$3
-	sudo chown www-data:www-data $DATA_DIR/src_pkg/$3
+	if [ ! -d $data_src_dir ];then
+	mkdir $data_src_dir
+	sudo chown www-data:www-data $data_src_dir
 	fi
-	if [ -e $DATA_DIR/src_pkg/$3/$3-$2.apk ];then
-	echo "Warning:*/data/src_pkg have $3-$2.apk!"
-	exit 1
-	fi
-	mv $tmp_dir/$3-$2.apk $DATA_DIR/src_pkg/$3/
+	mv $tmp_dir/$3-$2.apk $data_src_dir
 	if [ $? != 0 ];then
 	echo "Warning:Moving havn't successful!"
 	sudo rm -r $tmp_dir
 	exit 1
 	fi
 	sudo rm -r $tmp_dir
-	write verison to android
-	find $DATA_DIR/latest_ver/$3
-	if [ $? != 0 ];then 
-	touch $DATA_DIR/latest_ver/$3
-	sudo chown www-data:www-data $DATA_DIR/latest_ver/$3
-	echo $2 > $DATA_DIR/latest_ver/$3
+	#write verison to android
+	if [ ! -f $data_lastversion_dir ];then 
+	touch $data_lastversion_dir
+	sudo chown www-data:www-data $data_lastversion_dir
+	echo $2 > $data_lastversion_dir
         echo "DOWNLOAD IS SUCCESSFUL!"
 	exit 0
 	fi
-	sudo chown www-data:www-data $DATA_DIR/latest_ver/$3
-	echo $2 > $DATA_DIR/latest_ver/$3
-	echo "DOWNLOAN IS SUCCESSFUL!"
+	sudo chown www-data:www-data $data_lastversion_dir
+	echo $2 > $data_lastversion_dir
+	echo "DOWNLOAD IS SUCCESSFUL!"
 	exit 0
 fi
 	
