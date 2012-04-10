@@ -17,6 +17,16 @@ set -e
 case "$1" in
 	purge|remove)
 
+	#
+	# remove symlinks
+	#
+	rm -rf /usr/share/imvipdlsvr/web/dl.cgi
+	rm -rf /usr/share/imvipdlsvr/conf
+	rm -rf /usr/share/imvipdlsvr/output
+	rm -rf /usr/share/imvipdlsvr/data
+	rm -rf /usr/share/imvipdlsvr/log
+	rm -rf /etc/nginx/sites-enabled/imvipdlsvr
+	rm -rf /etc/nginx/sites-available/imvipdlsvr
 
 	;;
 

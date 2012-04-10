@@ -77,12 +77,12 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	androidurl=`echo ${var#*ANDROID_SRC_URL2=}`
 	##	
 	##test android-1.0.*.apk exit?
-	if [ -e $(bulid_android_srcpkg_path) ];then
+	if [ -e $(build_android_srcpkg_path) ];then
 		echo "Warning:$3-$2.apk is exist!"
 		exit 1
 	fi	
 	##not exit download android-1.0.0.apk
-        tmp_dir=$(mktemp -d  $BASE_DIR/tmp.XXXXXX)
+        tmp_dir=$(mktemp -d)
 	wget -P $tmp_dir $androidurl 
 	#download success move to DATA_DIR/src_pkg
 	if [ $? != 0 ]; then

@@ -67,6 +67,13 @@ case "$1" in
 	if [ ! -e /etc/nginx/sites-available/imvipdlsvr ]; then
 		ln -sf /etc/imvipdlsvr/nginx-site.conf /etc/nginx/sites-available/imvipdlsvr
 	fi
+
+	#
+	# Make a symlink to download.cgi if not exists.
+	#
+	if [ ! -e /usr/share/imvipdlsvr/web/dl.cgi ]; then
+		ln -sf /usr/share/imvipdlsvr/web/download.cgi /usr/share/imvipdlsvr/web/dl.cgi
+	fi
 	
 
 	;;
