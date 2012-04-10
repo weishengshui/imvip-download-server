@@ -73,8 +73,8 @@ if [ $# == 3 ] && [ $1 == "deploy" ];then
 	data_lastversion_dir=$DATA_DIR/latest_ver/$3
 	##cut android download address
 	##
-	var=`sed -n '/ANDROID_SRC_URL2/P' $CONF_DIR/imvipdlsvr.conf | sed "s/||v||/$2/g"`
-	androidurl=`echo ${var#*ANDROID_SRC_URL2=}`
+	var=`sed -n '/ANDROID_SRC_URL/P' $CONF_DIR/imvipdlsvr.conf | sed "s/||v||/$2/g"`
+	androidurl=`echo ${var#*ANDROID_SRC_URL=}`
 	##	
 	##test android-1.0.*.apk exit?
 	if [ -e $(build_android_srcpkg_path) ];then
