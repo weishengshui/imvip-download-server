@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.chinarewards.imvip</groupId>
   <artifactId>imvipdlsvr</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>IMVIP Download Server</name>
   <url>http://wiki.dev.jifen.cc/IMVIP官网下载服务器</url>
